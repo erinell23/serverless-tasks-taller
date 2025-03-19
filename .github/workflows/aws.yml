@@ -1,0 +1,40 @@
+name: Deploy AWS Lambda with Serverless
+
+on:
+  push:
+    branches:
+      - main  # Cambia esto si deseas desplegar desde otra rama
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20  # Ajusta a la versión que usas
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      - name: Install dependencies
+        run: npm ci  # Usa `npm install` si no tienes `package-lock.json`
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Cambia a la región donde despliegas
+
+      - name: Deploy to AWS using Serverless
+        run: serverless deploy --stage=dev --param="s3Deploy=taller-utp-aws-erinell"
+
+      - name: Notify on Failure
+        if: failure()
+        run: echo "🚨 Deployment failed!"
