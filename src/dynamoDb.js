@@ -31,3 +31,30 @@ export const getTasks = async () => {
     return response.Items;
 }
 
+export const deleteTask = async ({ id }) => {
+    const command = new DeleteCommand({
+        TableName: "taller-utp",
+        Key: {
+            tipo: "task",
+            id,
+        }
+    });
+    const response = await docClient.send(command);
+    return response.Items;
+}
+
+
+export const updateTask = async ({ id, estado }) => {
+    const command = new UpdateCommand({
+        TableName: "taller-utp",
+        Key: {
+            tipo: "task",
+            id,
+        },
+        UpdateExpression: 'SET estado=:estado',
+        ExpressionAttributeValues: {
+            ':estado': estado
+        }
+    });
+    await docClient.send(command);
+}
