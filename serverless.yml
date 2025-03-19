@@ -63,6 +63,19 @@ functions:
               - Content-Type
             allowCredentials: false
 
+  updateTask:
+    name: ${self:service}-AddTask
+    handler: src/functions/add-task/index.handler
+    events:
+      - http:
+          path: /task/{id}
+          method: put
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+            allowCredentials: false
+
 custom:
   s3Deploy: ${param:s3Deploy}
 
