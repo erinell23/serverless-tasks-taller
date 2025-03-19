@@ -1,0 +1,57 @@
+service: task-taller-utp
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  deploymentBucket:
+    name: ${param:s3Deploy}
+
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:Query
+          Resource:
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/taller-utp
+
+functions:
+  listTasks:
+    name: ${self:service}-ListTasks
+    handler: src/functions/list-tasks/index.handler
+    events:
+      - http:
+          path: /task
+          method: get
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+            allowCredentials: false
+
+  addTask:
+    name: ${self:service}-AddTask
+    handler: src/functions/add-task/index.handler
+    events:
+      - http:
+          path: /task
+          method: post
+          cors:
+            origin: "*"
+            headers:
+              - Content-Type
+            allowCredentials: false
+
+custom:
+  s3Deploy: ${param:s3Deploy}
+
+package:
+  individually: true
